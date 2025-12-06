@@ -1,0 +1,160 @@
+
+name: 'OSS License Scan'
+description: 'Scan dependencies for OSS license information using oss-license-scan'
+author: 'OSS License Scan Team'
+
+branding:
+  icon: 'shield'
+  color: 'blue'
+
+inputs:
+  file:
+    description: 'Path to dependency file (e.g., requirements.txt, package-lock.json)'
+    required: true
+  output:
+    description: 'Path to output JSON report file'
+    required: false
+    default: ''
+  markdown:
+    description: 'Path to output Markdown report file'
+    required: false
+    default: ''
+  policy:
+    description: 'Path to policy.json file for license compliance check'
+    required: false
+    default: ''
+  format:
+    description: 'File format (auto, requirements, pylock, package-lock, go-sum, gemfile-lock, pom)'
+    required: false
+    default: 'auto'
+  verbose:
+    description: 'Enable verbose logging (true/false)'
+    required: false
+    default: 'false'
+  debug:
+    description: 'Enable debug mode (true/false)'
+    required: false
+    default: 'false'
+
+outputs:
+  result:
+    description: 'Scan result (success/failure)'
+    value: ${{ steps.scan.outputs.result }}
+  violations-count:
+    description: 'Number of policy violations detected'
+    value: ${{ steps.scan.outputs.violations-count }}
+  report-path:
+    description: 'Path to the generated report file'
+    value: ${{ steps.scan.outputs.report-path }}
+  packages-count:
+    description: 'Total number of packages scanned'
+    value: ${{ steps.scan.outputs.packages-count }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+
+    - name: Install uv
+      shell: bash
+      run: |
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+    - name: Install dependencies
+      shell: bash
+      run: |
+        export PATH="$HOME/.local/bin:$PATH"
+        uv sync
+
+    - name: Run license scan
+      id: scan
+      shell: bash
+      run: |
+        export PATH="$HOME/.local/bin:$PATH"
+
+        # Initialize outputs
+        echo "result=success" >> $GITHUB_OUTPUT
+        echo "violations-count=0" >> $GITHUB_OUTPUT
+        echo "packages-count=0" >> $GITHUB_OUTPUT
+        echo "report-path=" >> $GITHUB_OUTPUT
+
+        # Build command arguments
+        CMD_ARGS="${{ github.workspace }}/${{ inputs.file }}"
+
+        # Add output option if specified
+        if [ -n "${{ inputs.output }}" ]; then
+          OUTPUT_PATH="${{ github.workspace }}/${{ inputs.output }}"
+          CMD_ARGS="$CMD_ARGS -o $OUTPUT_PATH"
+          echo "report-path=$OUTPUT_PATH" >> $GITHUB_OUTPUT
+        fi
+
+        # Add format option if not auto
+        if [ "${{ inputs.format }}" != "auto" ]; then
+          CMD_ARGS="$CMD_ARGS -f ${{ inputs.format }}"
+        fi
+
+        # Add markdown option if specified
+        if [ -n "${{ inputs.markdown }}" ]; then
+          CMD_ARGS="$CMD_ARGS -M ${{ github.workspace }}/${{ inputs.markdown }}"
+        fi
+
+        # Add policy option if specified
+        if [ -n "${{ inputs.policy }}" ]; then
+          CMD_ARGS="$CMD_ARGS -p ${{ github.workspace }}/${{ inputs.policy }}"
+        fi
+
+        # Add verbose option if enabled
+        if [ "${{ inputs.verbose }}" == "true" ]; then
+          CMD_ARGS="$CMD_ARGS -v"
+        fi
+
+        # Add debug option if enabled
+        if [ "${{ inputs.debug }}" == "true" ]; then
+          CMD_ARGS="$CMD_ARGS --debug"
+        fi
+
+        # Check if input file exists
+        if [ ! -f "${{ github.workspace }}/${{ inputs.file }}" ]; then
+          echo "::error::Input file not found: ${{ inputs.file }}"
+          echo "result=failure" >> $GITHUB_OUTPUT
+          exit 0
+        fi
+
+        # Create temp file for JSON output if not specified
+        TEMP_JSON=""
+        if [ -z "${{ inputs.output }}" ]; then
+          TEMP_JSON=$(mktemp)
+          CMD_ARGS="$CMD_ARGS -o $TEMP_JSON"
+        fi
+
+        # Run the scan
+        echo "Running: uv run oss-license-scan scan $CMD_ARGS"
+        if uv run oss-license-scan scan $CMD_ARGS; then
+          echo "result=success" >> $GITHUB_OUTPUT
+        else
+          echo "result=failure" >> $GITHUB_OUTPUT
+        fi
+
+        # Extract metrics from JSON output
+        JSON_FILE="${{ inputs.output }}"
+        if [ -z "$JSON_FILE" ]; then
+          JSON_FILE="$TEMP_JSON"
+        else
+          JSON_FILE="${{ github.workspace }}/${{ inputs.output }}"
+        fi
+
+        if [ -f "$JSON_FILE" ]; then
+          PACKAGES_COUNT=$(jq '.packages | length' "$JSON_FILE" 2>/dev/null || echo "0")
+          VIOLATIONS_COUNT=$(jq '.policy_violations | length' "$JSON_FILE" 2>/dev/null || echo "0")
+          echo "packages-count=$PACKAGES_COUNT" >> $GITHUB_OUTPUT
+          echo "violations-count=$VIOLATIONS_COUNT" >> $GITHUB_OUTPUT
+        fi
+
+        # Clean up temp file
+        if [ -n "$TEMP_JSON" ] && [ -f "$TEMP_JSON" ]; then
+          rm -f "$TEMP_JSON"
+        fi
