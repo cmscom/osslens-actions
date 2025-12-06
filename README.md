@@ -4,20 +4,25 @@ GitHub Actions for scanning OSS licenses.
 
 ## Product status
 
-- Version: v0.1.0 (initial release)
+- Version: v0.1 (initial release)
 - Development status: Alpha
 - Warranty: None (use at your own risk; feedback welcome)
 - Pricing: Free (paid plans may arrive later)
 
 ## Usage
 
+Since this action uses an LLM, make sure to configure your OpenAI or Anthropic API key in GitHub Secrets before use.
+
 ### Basic scan
 
 ```yaml
 - name: Scan licenses
-  uses: cmscom/osslens-actions@v0.1.0
+  uses: cmscom/osslens-actions@v0.1
   with:
     file: requirements.txt
+  env:
+    OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    LLM_PROVIDER: openai
 ```
 
 ### Scan with report outputs
@@ -25,11 +30,14 @@ GitHub Actions for scanning OSS licenses.
 ```yaml
 - name: Scan licenses with reports
   id: scan
-  uses: cmscom/osslens-actions@v0.1.0
+  uses: cmscom/osslens-actions@v0.1
   with:
     file: requirements.txt
     output: license-report.json
     markdown: license-report.md
+  env:
+    OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    LLM_PROVIDER: openai
 
 - name: Show results
   run: |
@@ -42,11 +50,14 @@ GitHub Actions for scanning OSS licenses.
 ```yaml
 - name: Scan with policy
   id: scan
-  uses: cmscom/osslens-actions@v0.1.0
+  uses: cmscom/osslens-actions@v0.1
   with:
     file: requirements.txt
     policy: policy.json
     output: report.json
+  env:
+    OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    LLM_PROVIDER: openai
 
 - name: Fail on violations
   if: steps.scan.outputs.violations-count != '0'
@@ -130,7 +141,7 @@ jobs:
 
       - name: Scan licenses
         id: scan
-        uses: cmscom/osslens-actions@v0.1.0
+        uses: cmscom/osslens-actions@v0.1
         with:
           file: requirements.txt
           policy: policy.json
@@ -138,6 +149,7 @@ jobs:
           markdown: license-report.md
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          LLM_PROVIDER: openai
 
       # Show results in Job Summary
       - name: Display results in Job Summary
@@ -216,7 +228,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Scan licenses
-        uses: cmscom/osslens-actions@v0.1.0
+        uses: cmscom/osslens-actions@v0.1
         with:
           file: requirements.txt
           output: license-report.json

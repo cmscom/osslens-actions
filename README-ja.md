@@ -11,13 +11,18 @@ GitHub ActionsでOSSライセンスをスキャンするためのAction。
 
 ## 使い方
 
+基本的にはLLMを使いますので、OpenAIやAnthropicのAPIキーをGitHub Secretsに設定してから利用してください。
+
 ### 基本的なスキャン
 
 ```yaml
 - name: Scan licenses
-  uses: cmscom/osslens-actions@v0.1.0
+  uses: cmscom/osslens-actions@v0.1
   with:
     file: requirements.txt
+  env:
+    OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    LLM_PROVIDER: openai
 ```
 
 ### レポート出力付きスキャン
@@ -25,11 +30,14 @@ GitHub ActionsでOSSライセンスをスキャンするためのAction。
 ```yaml
 - name: Scan licenses with reports
   id: scan
-  uses: cmscom/osslens-actions@v0.1.0
+  uses: cmscom/osslens-actions@v0.1
   with:
     file: requirements.txt
     output: license-report.json
     markdown: license-report.md
+  env:
+    OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    LLM_PROVIDER: openai
 
 - name: Show results
   run: |
@@ -42,11 +50,14 @@ GitHub ActionsでOSSライセンスをスキャンするためのAction。
 ```yaml
 - name: Scan with policy
   id: scan
-  uses: cmscom/osslens-actions@v0.1.0
+  uses: cmscom/osslens-actions@v0.1
   with:
     file: requirements.txt
     policy: policy.json
     output: report.json
+  env:
+    OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    LLM_PROVIDER: openai
 
 - name: Fail on violations
   if: steps.scan.outputs.violations-count != '0'
@@ -130,7 +141,7 @@ jobs:
 
       - name: Scan licenses
         id: scan
-        uses: cmscom/osslens-actions@v0.1.0
+        uses: cmscom/osslens-actions@v0.1
         with:
           file: requirements.txt
           policy: policy.json
@@ -138,6 +149,7 @@ jobs:
           markdown: license-report.md
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          LLM_PROVIDER: openai
 
       # Job Summary に結果を表示
       - name: Display results in Job Summary
@@ -216,7 +228,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Scan licenses
-        uses: cmscom/osslens-actions@v0.1.0
+        uses: cmscom/osslens-actions@v0.1
         with:
           file: requirements.txt
           output: license-report.json
