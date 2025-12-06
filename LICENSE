@@ -1,0 +1,71 @@
+CMScom Software License Agreement
+
+(Short Form / Draft)
+
+This Agreement sets forth the terms and conditions under which CMS Communications, Inc. ("Licensor") provides the software system and related services (collectively, the "Software").
+
+Article 1 (Scope of Application)
+
+This Agreement applies to the Software, including but not limited to:
+
+osslens-actions
+
+Related GitHub Actions, CLIs, and client libraries
+
+Associated documentation, configuration files, and sample code
+
+The Software is not open source software. Only the limited rights expressly granted in this Agreement are licensed to the user.
+
+Article 2 (Grant of License)
+
+The Licensor grants the user a non-exclusive, non-transferable license to use the Software internally within the user's organization.
+
+The user may use the Software, including for commercial purposes, within the usage conditions and pricing plans specified by the Licensor.
+
+The GitHub Actions and other client components may only be used in conjunction with the Licensor's APIs and services.
+
+Article 3 (Prohibited Activities)
+
+The user shall not:
+
+Redistribute, resell, sublicense, or re-lend the Software, in whole or in part, to any third party (including providing it as a SaaS or similar service).
+
+Use the Software to develop or provide products or services that are the same as, or substantially compete with, the Software.
+
+Decompile, disassemble, reverse engineer, or otherwise attempt to derive the source code or structure of the Software (except to the limited extent expressly permitted by applicable law).
+
+Remove or alter any copyright, trademark, or other proprietary notices contained in the Software.
+
+Use the Software in violation of applicable laws or public policy.
+
+Article 4 (Responsibility of the User)
+
+The Software is a tool intended to assist with analysis and decision-making regarding OSS licenses, copyright, and compliance, and does not constitute legal advice.
+
+The user is solely responsible for any decisions or actions taken based on the output of the Software. The user shall seek confirmation from attorneys or other qualified professionals as necessary.
+
+Article 5 (Disclaimer of Warranties)
+
+The Software is provided "AS IS," and the Licensor makes no warranties, express or implied, including but not limited to warranties of completeness, accuracy, usefulness, or fitness for a particular purpose.
+
+The Licensor shall not be liable for any damages arising from defects, bugs, specification changes, suspension, or discontinuation of the Software.
+
+Article 6 (Limitation of Liability)
+
+Even if the Licensor is found liable for damages, the total aggregate liability of the Licensor to the user shall not exceed the total amount of fees actually paid by the user to the Licensor during the six (6) months preceding the event giving rise to such liability.
+
+In no event shall the Licensor be liable for lost profits, loss of business opportunity, loss or corruption of data, or any indirect, consequential, special, or incidental damages.
+
+Article 7 (Term and Termination)
+
+This Agreement becomes effective on the date the user first uses the Software and remains in effect as long as the user continues to use the Software.
+
+If the user breaches this Agreement, the Licensor may immediately terminate this Agreement and suspend the user's use of the Software without prior notice.
+
+Upon termination of this Agreement, the user shall immediately cease using the Software and delete all copies of the Software in its possession or control.
+
+Article 8 (Governing Law and Jurisdiction)
+
+This Agreement shall be governed by and construed in accordance with the laws of Japan.
+
+Any disputes arising out of or in connection with this Agreement shall be submitted to the exclusive jurisdiction of the Tokyo District Court as the court of first instance.
