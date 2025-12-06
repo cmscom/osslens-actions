@@ -1,0 +1,1 @@
+"""License compatibility checking module."""
